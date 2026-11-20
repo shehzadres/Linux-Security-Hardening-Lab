@@ -1,54 +1,58 @@
-# APT Repository Review and Upgrade Plan
+# APT Repository Review and Upgrade Record
 
 Date: 2026-11-20
+Distribution: Kali GNU/Linux Rolling
 
-## Final repository state
+## Repository source cleanup
 
-The VM now uses the official Kali kali-rolling branch only.
+The lab was configured to use the official Kali Rolling branch as its active package source.
 
-- Active source: /etc/apt/sources.list
-- Disabled source backup: /etc/apt/sources.list.d/kali-old.list.disabled
-- The previous snapshot source file remains preserved for rollback.
-- APT metadata refresh completed successfully against kali-rolling.
+- Active source: `/etc/apt/sources.list`
+- Disabled additional source: `/etc/apt/sources.list.d/kali-old.list.disabled`
+- Preserved before-review copies: `configs/apt/sources.list.before-review` and `configs/apt/kali-old.list.before-review`
+- APT metadata refresh against `kali-rolling`: completed successfully
 
-The original source files are preserved in configs/apt/ with recorded SHA-256 checksums.
+The preserved files are historical before-state copies. Do not copy them back blindly; inspect current Kali repository guidance and the current machine's source configuration first.
 
-## Upgrade simulation
+## Upgrade planning and execution
 
-A non-root, non-destructive apt-get -s dist-upgrade simulation reported:
+An earlier simulation (`apt-get -s dist-upgrade`) reported 2,242 upgrades, 180 new packages, 14 removals, and 7 packages held back. The proposed removals were reviewed before the operator proceeded. This simulation is a historical planning record, not the final transaction manifest.
 
-- 2,242 upgraded
-- 180 newly installed
-- 14 removed
-- 7 not upgraded
+The VM operator subsequently confirmed that the Kali Rolling upgrade was completed. Available post-upgrade checks reported:
 
-The 14 removals were reviewed against the full simulation. Several are ABI transitions with replacement packages in the same plan, including:
+- `dpkg --audit`: no incomplete package configurations reported
+- `systemctl --failed`: no failed units
+- UFW: active
+- Fail2ban: active
+- SSH and Apache: disabled/inactive by design
+- Security baseline: 8 passed, 0 warnings, 0 failures
+- Reboot-required marker: absent at validation time
 
-- libavfilter11 to libavfilter12
-- libswscale9 to libswscale10
-- libblosc2-7 to libblosc2-9
-- libfalcosecurity0t64 to libfalcosecurity0.23
-- libpyside6-py3-6.9 and libshiboken6-py3-6.9 to 6.11 packages
-- libonnx1t64 to libonnx1l
-- libgusb2 to libgusb2a
-- libgvm22t64 to libgvm23
-- libprrte3 to libprrte4
+No exact final package transaction count is claimed because a complete transaction log was not captured in the public evidence set.
 
-The simulation also removes the transitional network-manager-gnome package while upgrading network-manager, network-manager-applet, and nm-connection-editor. This should still be reviewed after the transaction, particularly for desktop network controls. python3-pkg-resources is removed while setuptools is upgraded.
+## Package-state caveats
 
-The complete simulation is retained locally at evidence/command-outputs/apt-dist-upgrade-simulation.txt; raw command output is excluded from public Git by default.
+- An unprivileged `apt-get check` attempt could not acquire the dpkg frontend lock. The command did not complete and is not counted as a passing package consistency check.
+- `dpkg -l` showed an `rc` state for `libgvc6`, indicating the package was removed while residual configuration files remained. No purge or cleanup was performed.
+- The absence of a reboot-required marker is a point-in-time check; it does not prove every update can take effect without a reboot.
+- No autoremove or residual configuration purge is documented as having been run.
 
-## Decision
+## Snapshot and rollback decision
 
-No real upgrade or autoremove has been performed. The transaction affects thousands of packages and must be treated as a planned maintenance window.
+No VMware snapshot was created. The operator explicitly chose to proceed without one. This reduces rollback options if a later package or configuration issue appears. Before future large rolling upgrades, create and verify an independent recovery point where practical and retain a separate copy of critical data.
 
-Before a real upgrade:
+## Recommended post-maintenance routine
 
-1. Ensure the Windows volume holding the VM has adequate free space.
-2. Create and verify a VMware snapshot.
-3. Review the complete simulation again against the current package index.
-4. Confirm application and desktop compatibility.
-5. Obtain explicit approval for the real package transaction.
-6. After upgrading, verify package health, core services, network connectivity, and reboot requirements.
+Run from a local console or authenticated administrative session:
 
-At the latest review, the VM volume had approximately 3.1 GB free and the VM had no snapshots. Snapshot creation was deferred because there is not enough safe storage headroom. No package changes were made by the simulation.
+```bash
+sudo apt-get check
+sudo dpkg --audit
+systemctl --failed --no-pager
+systemctl is-system-running
+systemctl status ufw fail2ban --no-pager
+sudo ufw status verbose
+sudo fail2ban-client status
+```
+
+Review any `rc` packages before deciding whether to purge them. Check current upgrade notes, review proposed removals, and verify network access and desktop integration after each major rolling transaction.

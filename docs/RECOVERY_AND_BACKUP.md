@@ -13,7 +13,6 @@ From the project root, using the local VMware console:
     sudo ./scripts/system_config_backup.sh
 
 The archive includes the lab's relevant configuration state:
-
 - /etc/fstab
 - SSH daemon configuration and the lab hardening drop-in
 - UFW configuration
@@ -47,7 +46,7 @@ Replace ARCHIVE.tar.gz with the actual archive filename. Review extracted files 
    - Firewall: ufw status verbose
    - Mount table: findmnt --verify --tab-file /etc/fstab
 5. Keep the previous configuration copy until the service is confirmed healthy.
-6. If remote access or networking becomes unstable, revert using the VMware snapshot or console rather than experimenting over a broken remote session.
+6. If remote access or networking becomes unstable, use the VMware console and a verified recovery point where available.
 
 Do not blindly extract the archive over /. Review and restore individual paths to avoid overwriting unrelated system changes.
 
@@ -55,4 +54,4 @@ Do not blindly extract the archive over /. Review and restore individual paths t
 
 - Sample backup/restore demonstration: passed; file contents and mode 0600 matched.
 - System configuration backup utility: created and syntax-checked; not executed because the current restricted wrapper does not expose a system-backup action and general sudo requires local authentication.
-- VMware snapshot: not created because the VM volume had approximately 3.1 GB free at the latest check.
+- VMware snapshot: not created before the completed rolling upgrade, at the operator's direction. Create a verified recovery point before future high-risk maintenance where practical.

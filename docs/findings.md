@@ -21,19 +21,19 @@ Stopped and disabled Apache after confirming it was not required by another proj
 
 ## 02. Host firewall baseline
 
-UFW is active with default incoming deny and default outgoing allow policies. A temporary guest TCP listener was unreachable from the Windows host during the inbound test; the listener was stopped and the port verified closed. Outbound DNS and HTTPS were also verified.
+UFW is active with default incoming deny, default outgoing allow, and routed deny policies. A temporary guest TCP listener was unreachable from the Windows host during the inbound test; the listener was stopped and the port verified closed. Outbound DNS and HTTPS were also verified.
 
 **Status: Applied and tested for the documented paths.**
 
-**Limitation:** Docker may install packet-filter rules that affect published container ports independently of UFW. No containers were running during the review.
+**Limitation:** Docker may install packet-filter rules that affect published container ports independently of UFW. No containers were running during the recorded review.
 
 ## 03. Fail2ban protection
 
-Fail2ban is enabled and active. Its configuration test succeeds and the SSHD jail is loaded. There were zero current bans during inspection.
+Fail2ban is enabled and active. Its configuration test succeeded and the SSHD jail is loaded. There were zero current bans during inspection.
 
 **Status: Applied and verified.**
 
-**Limitation:** SSH is disabled, so the SSHD jail is configured but has no active SSH service to protect at present.
+**Limitation:** SSH is disabled, so the SSHD jail is configured but has no active SSH service to protect at present. Live ban behavior was not tested.
 
 ## 04. SSH access policy and service state
 
@@ -51,7 +51,7 @@ The privileged sshd syntax check and effective-configuration query passed. The S
 
 **Status: Policy configured; daemon intentionally not enabled.**
 
-**Next action:** Provision a passphrase-protected client public key, verify key-based login from the private lab network, review a narrow firewall allowance, and only then consider enabling SSH. Keep VMware console recovery available.
+**Next action:** Provision a passphrase-protected client key, verify key-based login from the private lab network, review a narrow firewall allowance, and only then consider enabling SSH. Keep VMware console recovery available.
 
 ## 05. Docker group membership
 
@@ -65,11 +65,11 @@ No membership change was made. Consider rootless Docker or group removal only af
 
 The additional kali-last-snapshot source was disabled and preserved as a disabled backup. APT metadata refresh succeeded with kali-rolling as the only active source.
 
-The non-root dist-upgrade simulation reported 2,242 upgrades, 180 new packages, 14 removals, and 7 not upgraded. Several removed libraries have replacement ABI packages in the same simulation, including the GVM, multimedia, ONNX, Falco, and PRRTE libraries. The simulation also transitions NetworkManager desktop integration packages.
+An earlier non-root dist-upgrade simulation reported 2,242 upgrades, 180 new packages, 14 removals, and 7 not upgraded. The operator subsequently confirmed completion of the Kali Rolling upgrade. Post-upgrade checks reported no incomplete package configurations in dpkg audit and no failed systemd units.
 
-**Status: Repository configuration cleaned; package plan reviewed; no upgrade performed.**
+**Status: Repository configuration cleaned; rolling upgrade completed; post-upgrade checks recorded.**
 
-A VMware snapshot is required before a real rolling upgrade. The VM volume had approximately 3.1 GB free and no existing snapshots at the latest check, so snapshot creation was deferred.
+**Limitations:** An unprivileged apt-get check attempt could not acquire the dpkg frontend lock and is not counted as a successful package consistency check. One residual rc package record for libgvc6 was observed and not purged. No VMware snapshot was created before the upgrade, at operator direction.
 
 ## 07. Configuration backup and recovery
 
@@ -85,6 +85,6 @@ The known template header line was already commented. The approved wrapper actio
 
 ## Overall verification
 
-Latest baseline result: **8 passed, 0 warnings, 0 failures.**
+Latest recorded baseline: **8 passed, 0 warnings, 0 failures.**
 
 This is an educational host baseline, not a complete penetration test or security certification. Upstream network controls, the Windows host, and the VMware hypervisor have not been comprehensively assessed.
