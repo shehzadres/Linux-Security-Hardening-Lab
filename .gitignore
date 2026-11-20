@@ -1,0 +1,32 @@
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.ppk
+id_rsa*
+id_ed25519*
+ssh_host_*_key
+
+# Local backups and private recovery material
+*.tar.gz
+*.sha256
+evidence/backup-lab-run.*/
+evidence/private-backups/
+evidence/command-outputs/*
+!evidence/command-outputs/.gitkeep
+
+# Screenshots must be reviewed and sanitized before publishing
+evidence/screenshots/*
+!evidence/screenshots/.gitkeep
+
+# Local runtime and editor state
+*.log
+*.swp
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+__pycache__/
+*.py[cod]
