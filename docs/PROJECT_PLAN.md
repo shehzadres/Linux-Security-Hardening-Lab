@@ -52,8 +52,8 @@
 - [x] Prepare sanitized portfolio evidence.
 - [x] Exclude raw host-specific command outputs and local backups from Git.
 - [x] Update README and operational documentation.
-- [ ] Initialize/validate the local Git repository and configure its remote.
-- [ ] Publish the reviewed project to GitHub.
+- [x] Initialize local Git repository, review staged files, and create a clean initial commit.
+- [ ] Create/configure a GitHub remote and publish the reviewed project.
 
 ## Current maintenance gates
 

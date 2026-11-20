@@ -69,6 +69,7 @@ See docs/RECOVERY_AND_BACKUP.md before restoring any system configuration.
 - A VMware snapshot has not been created. The VM is stored on a Windows volume with approximately 3.1 GB free at the last check, which is insufficient headroom for a safe rolling-upgrade snapshot.
 - The Kali account remains in the rootful Docker group at the user's request. Docker socket access is effectively root-equivalent and weakens the restricted-sudo boundary.
 - The package upgrade simulation is not an approval to upgrade. No full upgrade or autoremove has been run.
+- The local Git repository has a clean initial commit. No GitHub remote has been configured and nothing has been published.
 - This is an educational lab baseline, not a full security audit, penetration test, or production security certification. Upstream network controls and the Windows host have not been comprehensively assessed.
 - Raw command outputs are retained locally and excluded from public Git history. Review and sanitize any additional evidence before publishing.
 
